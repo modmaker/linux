@@ -522,56 +522,56 @@ static inline void omap_mux_decode(struct seq_file *s, u16 val)
 	i++;
 	flags[i] = mode;
 
-#ifdef CONFIG_SOC_OMAPAM33XX
-	if (val & AM33XX_INPUT_EN) {
-		if (val & AM33XX_PULL_DISA) {
-			flags[ ++i] = "AM33XX_PIN_INPUT";
-		} else if (val & AM33XX_PULL_UP) {
-			flags[ ++i] = "AM33XX_PIN_INPUT_PULLUP";
+	if (cpu_is_am33xx()) {
+		if (val & AM33XX_INPUT_EN) {
+			if (val & AM33XX_PULL_DISA) {
+				flags[ ++i] = "AM33XX_PIN_INPUT";
+			} else if (val & AM33XX_PULL_UP) {
+				flags[ ++i] = "AM33XX_PIN_INPUT_PULLUP";
+			} else {
+				flags[ ++i] = "AM33XX_PIN_INPUT_PULLDOWN";
+			}
 		} else {
-			flags[ ++i] = "AM33XX_PIN_INPUT_PULLDOWN";
+			flags[ ++i] = "AM33XX_PIN_OUTPUT";
 		}
 	} else {
-		flags[ ++i] = "AM33XX_PIN_OUTPUT";
-	}
-#else
-	OMAP_MUX_TEST_FLAG(val, OMAP_PIN_OFF_WAKEUPENABLE);
-	if (val & OMAP_OFF_EN) {
-		if (!(val & OMAP_OFFOUT_EN)) {
-			if (!(val & OMAP_OFF_PULL_UP)) {
-				OMAP_MUX_TEST_FLAG(val,
-					OMAP_PIN_OFF_INPUT_PULLDOWN);
+		OMAP_MUX_TEST_FLAG(val, OMAP_PIN_OFF_WAKEUPENABLE);
+		if (val & OMAP_OFF_EN) {
+			if (!(val & OMAP_OFFOUT_EN)) {
+				if (!(val & OMAP_OFF_PULL_UP)) {
+					OMAP_MUX_TEST_FLAG(val,
+							OMAP_PIN_OFF_INPUT_PULLDOWN);
+				} else {
+					OMAP_MUX_TEST_FLAG(val,
+							OMAP_PIN_OFF_INPUT_PULLUP);
+				}
 			} else {
-				OMAP_MUX_TEST_FLAG(val,
-					OMAP_PIN_OFF_INPUT_PULLUP);
-			}
-		} else {
-			if (!(val & OMAP_OFFOUT_VAL)) {
-				OMAP_MUX_TEST_FLAG(val,
-					OMAP_PIN_OFF_OUTPUT_LOW);
-			} else {
-				OMAP_MUX_TEST_FLAG(val,
-					OMAP_PIN_OFF_OUTPUT_HIGH);
+				if (!(val & OMAP_OFFOUT_VAL)) {
+					OMAP_MUX_TEST_FLAG(val,
+							OMAP_PIN_OFF_OUTPUT_LOW);
+				} else {
+					OMAP_MUX_TEST_FLAG(val,
+							OMAP_PIN_OFF_OUTPUT_HIGH);
+				}
 			}
 		}
-	}
 
-	if (val & OMAP_INPUT_EN) {
-		if (val & OMAP_PULL_ENA) {
-			if (!(val & OMAP_PULL_UP)) {
-				OMAP_MUX_TEST_FLAG(val,
-					OMAP_PIN_INPUT_PULLDOWN);
+		if (val & OMAP_INPUT_EN) {
+			if (val & OMAP_PULL_ENA) {
+				if (!(val & OMAP_PULL_UP)) {
+					OMAP_MUX_TEST_FLAG(val,
+							OMAP_PIN_INPUT_PULLDOWN);
+				} else {
+					OMAP_MUX_TEST_FLAG(val, OMAP_PIN_INPUT_PULLUP);
+				}
 			} else {
-				OMAP_MUX_TEST_FLAG(val, OMAP_PIN_INPUT_PULLUP);
+				OMAP_MUX_TEST_FLAG(val, OMAP_PIN_INPUT);
 			}
 		} else {
-			OMAP_MUX_TEST_FLAG(val, OMAP_PIN_INPUT);
+			i++;
+			flags[i] = "OMAP_PIN_OUTPUT";
 		}
-	} else {
-		i++;
-		flags[i] = "OMAP_PIN_OUTPUT";
 	}
-#endif
 
 	do {
 		seq_printf(s, "%s", flags[i]);
