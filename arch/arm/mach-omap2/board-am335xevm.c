@@ -1426,6 +1426,9 @@ static struct pinmux_config bone_pin_mux[] = {
     {"gpmc_a6.rgmii2_tclk", OMAP_MUX_MODE7 | AM33XX_PIN_OUTPUT},
     {"gpmc_a7.rgmii2_rclk", OMAP_MUX_MODE7 | AM33XX_PIN_OUTPUT},
     {"gpmc_a8.rgmii2_rd3", OMAP_MUX_MODE7 | AM33XX_PIN_OUTPUT},
+    /* work-around for BeBoPr cape that expects gpmc_ad2 and gpmc_ad6 to
+       power up in an identical way to prevent a glitch on the outputs */
+    {"gpmc_ad2.gpio1_2", OMAP_MUX_MODE7 | AM33XX_PIN_INPUT_PULLUP},
     /* Grounding gpio1_6 (pin 3 Conn A) signals bone tester to start diag tests */
     {"gpmc_ad6.gpio1_6", OMAP_MUX_MODE7 | AM33XX_PIN_INPUT_PULLUP},
 	{NULL, 0},
@@ -2515,7 +2518,7 @@ static void beaglebone_cape_setup(struct memory_accessor *mem_acc, void *context
 	pr_info("BeagleBone cape partnumber: %s\n", tmp);   
 
 	if (!strncmp( "BEBOPR", cape_config.name, 6)) {
-		pr_info( "BeagleBone cape: initializing BEBOPR cape\n");
+		pr_info( "BeagleBone cape: initializing BEBOPR 3D-printer cape\n");
 		bone_io_config_from_cape_eeprom();
 		return;	// if configured from eeprom, skip all other initialization
 	}
